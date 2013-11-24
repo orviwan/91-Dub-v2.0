@@ -19,7 +19,5 @@ pebble_app.ld
 tools
 waf
 wscript
-resources/src/fonts/BebasNeue.otf
-resources/src/fonts/MuroRegular.otf
-
+.gitignore
 
