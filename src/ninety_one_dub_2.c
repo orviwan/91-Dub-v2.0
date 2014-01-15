@@ -163,27 +163,23 @@ static void update_battery(BatteryChargeState charge_state) {
 
   batteryPercent = charge_state.charge_percent;
 
-  layer_set_hidden(bitmap_layer_get_layer(battery_layer), charge_state.is_charging);
-  
   if(batteryPercent>90) {
+    layer_set_hidden(bitmap_layer_get_layer(battery_layer), true);
     layer_set_hidden(bitmap_layer_get_layer(battery_image_layer), true);
     for (int i = 0; i < TOTAL_BATTERY_PERCENT_DIGITS; ++i) {
       layer_set_hidden(bitmap_layer_get_layer(battery_percent_layers[i]), true);
     }  
     return;
   }
-
+  
+  layer_set_hidden(bitmap_layer_get_layer(battery_layer), charge_state.is_charging);
+  
   layer_set_hidden(bitmap_layer_get_layer(battery_image_layer), false);
   for (int i = 0; i < TOTAL_BATTERY_PERCENT_DIGITS; ++i) {
     layer_set_hidden(bitmap_layer_get_layer(battery_percent_layers[i]), false);
   }  
 
-  if (charge_state.is_charging) {
-    change_battery_icon(true);
-    return;
-  }
-  
-  change_battery_icon(false);
+  change_battery_icon(charge_state.is_charging);
     
   set_container_image(&battery_percent_image[0], battery_percent_layers[0], TINY_IMAGE_RESOURCE_IDS[charge_state.charge_percent/10], GPoint(108, 43));
   set_container_image(&battery_percent_image[1], battery_percent_layers[1], TINY_IMAGE_RESOURCE_IDS[charge_state.charge_percent%10], GPoint(114, 43));
