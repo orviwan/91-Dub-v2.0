@@ -1,10 +1,10 @@
 {
-    "versionLabel": "1.0.4",
+    "versionLabel": "1.0.5",
     "uuid": "0c3ca0ae-9067-4764-af92-bdcad1fb6084",
     "shortName": "91 Dub v2.0",
     "longName": "91 Dub v2.0",
     "capabilities": [ "configurable" ],
-    "versionCode": 4,
+    "versionCode": 5,
     "companyName": "Orviwan",
     "watchapp": {
         "watchface": true

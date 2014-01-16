@@ -129,10 +129,19 @@ void change_battery_icon(bool charging) {
   layer_mark_dirty(bitmap_layer_get_layer(battery_image_layer));
 }
 
+static void handle_tick(struct tm *tick_time, TimeUnits units_changed);
+
 static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
   switch (key) {
     case BLINK_KEY:
       blink = new_tuple->value->uint8;
+      tick_timer_service_unsubscribe();
+      if(blink) {
+        tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
+      }
+      else {
+        tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
+      }
       break;
     case INVERT_KEY:
       invert = new_tuple->value->uint8;
