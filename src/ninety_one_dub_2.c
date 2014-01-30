@@ -191,9 +191,9 @@ static void update_battery(BatteryChargeState charge_state) {
   for (int i = 0; i < TOTAL_BATTERY_PERCENT_DIGITS; ++i) {
     layer_set_hidden(bitmap_layer_get_layer(battery_percent_layers[i]), false);
   }  
-  set_container_image(&battery_percent_image[0], battery_percent_layers[0], TINY_IMAGE_RESOURCE_IDS[charge_state.charge_percent/10], GPoint(108, 43));
-  set_container_image(&battery_percent_image[1], battery_percent_layers[1], TINY_IMAGE_RESOURCE_IDS[charge_state.charge_percent%10], GPoint(114, 43));
-  set_container_image(&battery_percent_image[2], battery_percent_layers[2], TINY_IMAGE_RESOURCE_IDS[10], GPoint(120, 43));
+  set_container_image(&battery_percent_image[0], battery_percent_layers[0], TINY_IMAGE_RESOURCE_IDS[charge_state.charge_percent/10], GPoint(89, 43));
+  set_container_image(&battery_percent_image[1], battery_percent_layers[1], TINY_IMAGE_RESOURCE_IDS[charge_state.charge_percent%10], GPoint(95, 43));
+  set_container_image(&battery_percent_image[2], battery_percent_layers[2], TINY_IMAGE_RESOURCE_IDS[10], GPoint(101, 43));
  
 }
 
@@ -345,7 +345,7 @@ static void init(void) {
   
   battery_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BATTERY);
   GRect frame4 = (GRect) {
-    .origin = { .x = 88, .y = 43 },
+    .origin = { .x = 111, .y = 43 },
     .size = battery_image->bounds.size
   };
   battery_layer = bitmap_layer_create(frame4);
