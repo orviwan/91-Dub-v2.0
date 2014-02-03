@@ -34,11 +34,25 @@ function saveLocalData(config) {
 }
 function loadLocalData() {
   
-  mConfig.blink = parseInt(localStorage.getItem("blink"));
-  mConfig.invert = parseInt(localStorage.getItem("invert"));
-  mConfig.bluetoothvibe = parseInt(localStorage.getItem("bluetoothvibe"));
-  mConfig.hourlyvibe = parseInt(localStorage.getItem("hourlyvibe"));
-  mConfig.configureUrl = "http://www.mirz.com/91dubv2/index.html";
+	mConfig.blink = parseInt(localStorage.getItem("blink"));
+	mConfig.invert = parseInt(localStorage.getItem("invert"));
+	mConfig.bluetoothvibe = parseInt(localStorage.getItem("bluetoothvibe"));
+	mConfig.hourlyvibe = parseInt(localStorage.getItem("hourlyvibe"));
+	mConfig.configureUrl = "http://www.mirz.com/91dubv2/index.html";
+	
+	if(isNaN(mConfig.blink)) {
+		mConfig.blink = 1;
+	}
+	if(isNaN(mConfig.invert)) {
+		mConfig.invert = 0;
+	}
+	if(isNaN(mConfig.bluetoothvibe)) {
+		mConfig.bluetoothvibe = 1;
+	}
+	if(isNaN(mConfig.hourlyvibe)) {
+		mConfig.hourlyvibe = 0;
+	}   
+	
 
   //console.log("loadLocalData() " + JSON.stringify(mConfig));
 }

@@ -1,5 +1,5 @@
 {
-    "versionLabel": "1.0.7",
+    "versionLabel": "1.0.8",
     "uuid": "0c3ca0ae-9067-4764-af92-bdcad1fb6084",
     "appKeys": {
         "hourlyvibe": 3,
@@ -8,7 +8,7 @@
         "bluetoothvibe": 2
     },
     "longName": "91 Dub v2.0",
-    "versionCode": 7,
+    "versionCode": 8,
     "capabilities": [
         "configurable"
     ],
