@@ -12,6 +12,7 @@ static int blink;
 static int invert;
 static int bluetoothvibe;
 static int hourlyvibe;
+static int branding_mask;
 
 static bool appStarted = false;
 
@@ -19,8 +20,12 @@ enum {
   BLINK_KEY = 0x0,
   INVERT_KEY = 0x1,
   BLUETOOTHVIBE_KEY = 0x2,
-  HOURLYVIBE_KEY = 0x3
+  HOURLYVIBE_KEY = 0x3,
+  BRANDING_MASK_KEY = 0x4
 };
+
+static GBitmap *branding_mask_image;
+static BitmapLayer *branding_mask_layer;
 
 static GBitmap *background_image;
 static BitmapLayer *background_layer;
@@ -108,12 +113,18 @@ const int TINY_IMAGE_RESOURCE_IDS[] = {
 
 void change_background() {
   gbitmap_destroy(background_image);
+  gbitmap_destroy(branding_mask_image);
   if(invert) {
     background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND_INVERT);
+    branding_mask_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRANDING_MASK_INVERT);
   }
   else {
     background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
+    branding_mask_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRANDING_MASK);
   }  
+  bitmap_layer_set_bitmap(branding_mask_layer, branding_mask_image);
+  layer_mark_dirty(bitmap_layer_get_layer(branding_mask_layer));
+  
   bitmap_layer_set_bitmap(background_layer, background_image);
   layer_mark_dirty(bitmap_layer_get_layer(background_layer));
 }
@@ -153,6 +164,10 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
       break;      
     case HOURLYVIBE_KEY:
       hourlyvibe = new_tuple->value->uint8;
+      break;
+    case BRANDING_MASK_KEY:
+      branding_mask = new_tuple->value->uint8;
+      layer_set_hidden(bitmap_layer_get_layer(branding_mask_layer), !branding_mask);
       break;
   }
 }
@@ -315,7 +330,7 @@ static void init(void) {
   background_layer = bitmap_layer_create(layer_get_frame(window_layer));
   bitmap_layer_set_bitmap(background_layer, background_image);
   layer_add_child(window_layer, bitmap_layer_get_layer(background_layer));
- 	
+  
   separator_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_SEPARATOR);
   GRect frame = (GRect) {
     .origin = { .x = 69, .y = 91 },
@@ -385,7 +400,18 @@ static void init(void) {
     battery_percent_layers[i] = bitmap_layer_create(dummy_frame);
     layer_add_child(window_layer, bitmap_layer_get_layer(battery_percent_layers[i]));
   }
-
+    
+  //mask the pebble branding
+  GRect framemask = (GRect) {
+    .origin = { .x = 0, .y = 0 },
+    .size = { .w = 144, .h = 19 }
+  };
+  branding_mask_layer = bitmap_layer_create(framemask);
+  layer_add_child(window_layer, bitmap_layer_get_layer(branding_mask_layer));
+  branding_mask_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRANDING_MASK);
+  bitmap_layer_set_bitmap(branding_mask_layer, branding_mask_image);
+  layer_set_hidden(bitmap_layer_get_layer(branding_mask_layer), false);
+  
   toggle_bluetooth_icon(bluetooth_connection_service_peek());
   update_battery(battery_state_service_peek());
 
@@ -393,7 +419,8 @@ static void init(void) {
     TupletInteger(BLINK_KEY, 1),
     TupletInteger(INVERT_KEY, 0),
     TupletInteger(BLUETOOTHVIBE_KEY, 0),
-    TupletInteger(HOURLYVIBE_KEY, 0)
+    TupletInteger(HOURLYVIBE_KEY, 0),
+    TupletInteger(BRANDING_MASK_KEY, 0)
   };
   
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
@@ -424,6 +451,11 @@ static void deinit(void) {
   bitmap_layer_destroy(background_layer);
   gbitmap_destroy(background_image);
   background_image = NULL;
+  
+  layer_remove_from_parent(bitmap_layer_get_layer(branding_mask_layer));
+  bitmap_layer_destroy(branding_mask_layer);
+  gbitmap_destroy(branding_mask_image);
+  branding_mask_image = NULL;
 
   layer_remove_from_parent(bitmap_layer_get_layer(separator_layer));
   bitmap_layer_destroy(separator_layer);
@@ -461,6 +493,7 @@ static void deinit(void) {
   for (int i = 0; i < TOTAL_DATE_DIGITS; i++) {
     layer_remove_from_parent(bitmap_layer_get_layer(date_digits_layers[i]));
     gbitmap_destroy(date_digits_images[i]);
+    date_digits_images[i] = NULL;
     bitmap_layer_destroy(date_digits_layers[i]);
 	date_digits_layers[i] = NULL;
   }
@@ -468,6 +501,7 @@ static void deinit(void) {
   for (int i = 0; i < TOTAL_TIME_DIGITS; i++) {
     layer_remove_from_parent(bitmap_layer_get_layer(time_digits_layers[i]));
     gbitmap_destroy(time_digits_images[i]);
+    time_digits_images[i] = NULL;
     bitmap_layer_destroy(time_digits_layers[i]);
 	time_digits_layers[i] = NULL;
   }
@@ -475,11 +509,15 @@ static void deinit(void) {
   for (int i = 0; i < TOTAL_BATTERY_PERCENT_DIGITS; i++) {
     layer_remove_from_parent(bitmap_layer_get_layer(battery_percent_layers[i]));
     gbitmap_destroy(battery_percent_image[i]);
+    battery_percent_image[i] = NULL;
     bitmap_layer_destroy(battery_percent_layers[i]); 
 	battery_percent_layers[i] = NULL;
   } 
 	
+  layer_remove_from_parent(window_layer);
   layer_destroy(window_layer);
+	
+  window_destroy(window);
 
 }
 

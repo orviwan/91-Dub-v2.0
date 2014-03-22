@@ -28,6 +28,7 @@ function saveLocalData(config) {
   localStorage.setItem("invert", parseInt(config.invert)); 
   localStorage.setItem("bluetoothvibe", parseInt(config.bluetoothvibe)); 
   localStorage.setItem("hourlyvibe", parseInt(config.hourlyvibe)); 
+  localStorage.setItem("branding_mask", parseInt(config.branding_mask)); 
   
   loadLocalData();
 
@@ -38,7 +39,8 @@ function loadLocalData() {
 	mConfig.invert = parseInt(localStorage.getItem("invert"));
 	mConfig.bluetoothvibe = parseInt(localStorage.getItem("bluetoothvibe"));
 	mConfig.hourlyvibe = parseInt(localStorage.getItem("hourlyvibe"));
-	mConfig.configureUrl = "http://www.mirz.com/91dubv2/index.html";
+	mConfig.branding_mask = parseInt(localStorage.getItem("branding_mask"));
+	mConfig.configureUrl = "http://www.mirz.com/91dubv2/index2.html";
 	
 	if(isNaN(mConfig.blink)) {
 		mConfig.blink = 1;
@@ -52,6 +54,9 @@ function loadLocalData() {
 	if(isNaN(mConfig.hourlyvibe)) {
 		mConfig.hourlyvibe = 0;
 	}   
+	if(isNaN(mConfig.branding_mask)) {
+		mConfig.branding_mask = 0;
+	}   
 	
 
   //console.log("loadLocalData() " + JSON.stringify(mConfig));
@@ -62,6 +67,7 @@ function returnConfigToPebble() {
     "blink":parseInt(mConfig.blink), 
     "invert":parseInt(mConfig.invert), 
     "bluetoothvibe":parseInt(mConfig.bluetoothvibe), 
-    "hourlyvibe":parseInt(mConfig.hourlyvibe)
+    "hourlyvibe":parseInt(mConfig.hourlyvibe),
+    "branding_mask":parseInt(mConfig.branding_mask)
   });    
 }

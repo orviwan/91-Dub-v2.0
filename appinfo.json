@@ -1,14 +1,15 @@
 {
-    "versionLabel": "1.0.8",
+    "versionLabel": "1.0.9",
     "uuid": "0c3ca0ae-9067-4764-af92-bdcad1fb6084",
     "appKeys": {
         "hourlyvibe": 3,
         "invert": 1,
         "blink": 0,
+        "branding_mask": 4,
         "bluetoothvibe": 2
     },
     "longName": "91 Dub v2.0",
-    "versionCode": 8,
+    "versionCode": 9,
     "capabilities": [
         "configurable"
     ],
@@ -19,6 +20,16 @@
     },
     "resources": {
         "media": [
+            {
+                "type": "png",
+                "name": "IMAGE_BRANDING_MASK_INVERT",
+                "file": "images/branding-mask-invert.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_BRANDING_MASK",
+                "file": "images/branding-mask.png"
+            },
             {
                 "type": "png",
                 "name": "IMAGE_SEPARATOR",
