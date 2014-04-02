@@ -8,11 +8,25 @@ static uint8_t batteryPercent;
 static AppSync sync;
 static uint8_t sync_buffer[64];
 
-static int blink;
-static int invert;
-static int bluetoothvibe;
-static int hourlyvibe;
-static int branding_mask;
+#define SETTINGS_KEY 99
+
+typedef struct persist {
+	int Blink;
+    int Invert;
+    int BluetoothVibe;
+    int HourlyVibe;
+    int BrandingMask;
+} __attribute__((__packed__)) persist;
+
+persist settings = {
+	.Blink = 1,
+	.Invert = 0,
+	.BluetoothVibe = 1,
+	.HourlyVibe = 0,
+	.BrandingMask = 0
+};
+
+static int valueRead, valueWritten;
 
 static bool appStarted = false;
 
@@ -114,7 +128,7 @@ const int TINY_IMAGE_RESOURCE_IDS[] = {
 void change_background() {
   gbitmap_destroy(background_image);
   gbitmap_destroy(branding_mask_image);
-  if(invert) {
+  if(settings.Invert) {
     background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND_INVERT);
     branding_mask_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRANDING_MASK_INVERT);
   }
@@ -146,9 +160,9 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed);
 static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
   switch (key) {
     case BLINK_KEY:
-      blink = new_tuple->value->uint8;
+      settings.Blink = new_tuple->value->uint8;
       tick_timer_service_unsubscribe();
-      if(blink) {
+      if(settings.Blink) {
         tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
       }
       else {
@@ -156,18 +170,18 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
       }
       break;
     case INVERT_KEY:
-      invert = new_tuple->value->uint8;
+      settings.Invert = new_tuple->value->uint8;
       change_background();
       break;
     case BLUETOOTHVIBE_KEY:
-      bluetoothvibe = new_tuple->value->uint8;
+      settings.BluetoothVibe = new_tuple->value->uint8;
       break;      
     case HOURLYVIBE_KEY:
-      hourlyvibe = new_tuple->value->uint8;
+      settings.HourlyVibe = new_tuple->value->uint8;
       break;
     case BRANDING_MASK_KEY:
-      branding_mask = new_tuple->value->uint8;
-      layer_set_hidden(bitmap_layer_get_layer(branding_mask_layer), !branding_mask);
+      settings.BrandingMask = new_tuple->value->uint8;
+      layer_set_hidden(bitmap_layer_get_layer(branding_mask_layer), !settings.BrandingMask);
       break;
   }
 }
@@ -213,7 +227,7 @@ static void update_battery(BatteryChargeState charge_state) {
 }
 
 static void toggle_bluetooth_icon(bool connected) {
-  if(appStarted && !connected && bluetoothvibe) {
+  if(appStarted && !connected && settings.BluetoothVibe) {
     //vibe!
     vibes_long_pulse();
   }
@@ -248,7 +262,7 @@ static void update_days(struct tm *tick_time) {
 
 static void update_hours(struct tm *tick_time) {
 
-  if(appStarted && hourlyvibe) {
+  if(appStarted && settings.HourlyVibe) {
     //vibe!
     vibes_short_pulse();
   }
@@ -281,7 +295,7 @@ static void update_minutes(struct tm *tick_time) {
   set_container_image(&time_digits_images[3], time_digits_layers[3], BIG_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_min%10], GPoint(105, 84));
 }
 static void update_seconds(struct tm *tick_time) {
-  if(blink) {
+  if(settings.Blink) {
     layer_set_hidden(bitmap_layer_get_layer(separator_layer), tick_time->tm_sec%2);
   }
   else {
@@ -306,6 +320,15 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
   }		
 }
 
+static void loadPersistentSettings() {	
+	valueRead = persist_read_data(SETTINGS_KEY, &settings, sizeof(settings));
+}
+
+static void savePersistentSettings() {
+	valueWritten = persist_write_data(SETTINGS_KEY, &settings, sizeof(settings));
+}
+
+
 static void init(void) {
   memset(&time_digits_layers, 0, sizeof(time_digits_layers));
   memset(&time_digits_images, 0, sizeof(time_digits_images));
@@ -325,6 +348,8 @@ static void init(void) {
   }
   window_stack_push(window, true /* Animated */);
   window_layer = window_get_root_layer(window);
+  
+  loadPersistentSettings();
 	
   background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
   background_layer = bitmap_layer_create(layer_get_frame(window_layer));
@@ -410,17 +435,17 @@ static void init(void) {
   layer_add_child(window_layer, bitmap_layer_get_layer(branding_mask_layer));
   branding_mask_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRANDING_MASK);
   bitmap_layer_set_bitmap(branding_mask_layer, branding_mask_image);
-  layer_set_hidden(bitmap_layer_get_layer(branding_mask_layer), false);
+  layer_set_hidden(bitmap_layer_get_layer(branding_mask_layer), !settings.BrandingMask);
   
   toggle_bluetooth_icon(bluetooth_connection_service_peek());
   update_battery(battery_state_service_peek());
 
   Tuplet initial_values[] = {
-    TupletInteger(BLINK_KEY, 1),
-    TupletInteger(INVERT_KEY, 0),
-    TupletInteger(BLUETOOTHVIBE_KEY, 0),
-    TupletInteger(HOURLYVIBE_KEY, 0),
-    TupletInteger(BRANDING_MASK_KEY, 0)
+    TupletInteger(BLINK_KEY, settings.Blink),
+    TupletInteger(INVERT_KEY, settings.Invert),
+    TupletInteger(BLUETOOTHVIBE_KEY, settings.BluetoothVibe),
+    TupletInteger(HOURLYVIBE_KEY, settings.HourlyVibe),
+    TupletInteger(BRANDING_MASK_KEY, settings.BrandingMask)
   };
   
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
@@ -441,6 +466,9 @@ static void init(void) {
 
 
 static void deinit(void) {
+
+  savePersistentSettings();
+
   app_sync_deinit(&sync);
   
   tick_timer_service_unsubscribe();
