@@ -545,7 +545,7 @@ static void deinit(void) {
   layer_remove_from_parent(window_layer);
   layer_destroy(window_layer);
 	
-  window_destroy(window);
+  //window_destroy(window);
 
 }
 
