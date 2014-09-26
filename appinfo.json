@@ -1,281 +1,282 @@
 {
-    "versionLabel": "1.0.12",
-    "watchapp": {
-        "watchface": true
+    "appKeys": {
+        "blink": 0,
+        "bluetoothvibe": 2,
+        "branding_mask": 4,
+        "hourlyvibe": 3,
+        "invert": 1
     },
     "capabilities": [
         "configurable"
     ],
-    "appKeys": {
-        "invert": 1,
-        "branding_mask": 4,
-        "hourlyvibe": 3,
-        "bluetoothvibe": 2,
-        "blink": 0
-    },
+    "companyName": "Orviwan",
     "longName": "91 Dub v2.0",
-    "shortName": "91 Dub v2.0",
+    "projectType": "native",
     "resources": {
         "media": [
             {
-                "menuIcon": true,
                 "file": "images/menu_icon_91w.png",
-                "type": "png",
-                "name": "IMAGE_MENU_ICON"
+                "menuIcon": true,
+                "name": "IMAGE_MENU_ICON",
+                "type": "png"
             },
             {
                 "file": "images/branding-mask-invert.png",
-                "type": "png",
-                "name": "IMAGE_BRANDING_MASK_INVERT"
+                "name": "IMAGE_BRANDING_MASK_INVERT",
+                "type": "png"
             },
             {
                 "file": "images/branding-mask.png",
-                "type": "png",
-                "name": "IMAGE_BRANDING_MASK"
+                "name": "IMAGE_BRANDING_MASK",
+                "type": "png"
             },
             {
                 "file": "images/separator.png",
-                "type": "png",
-                "name": "IMAGE_SEPARATOR"
+                "name": "IMAGE_SEPARATOR",
+                "type": "png"
             },
             {
                 "file": "images/background-invert.png",
-                "type": "png",
-                "name": "IMAGE_BACKGROUND_INVERT"
+                "name": "IMAGE_BACKGROUND_INVERT",
+                "type": "png"
             },
             {
                 "file": "images/background.png",
-                "type": "png",
-                "name": "IMAGE_BACKGROUND"
+                "name": "IMAGE_BACKGROUND",
+                "type": "png"
             },
             {
                 "file": "images/icon_bluetooth.png",
-                "type": "png",
-                "name": "IMAGE_BLUETOOTH"
+                "name": "IMAGE_BLUETOOTH",
+                "type": "png"
             },
             {
                 "file": "images/icon_meter.png",
-                "type": "png",
-                "name": "IMAGE_METER_BAR"
+                "name": "IMAGE_METER_BAR",
+                "type": "png"
             },
             {
                 "file": "images/time_format_24H.png",
-                "type": "png",
-                "name": "IMAGE_24_HOUR_MODE"
+                "name": "IMAGE_24_HOUR_MODE",
+                "type": "png"
             },
             {
                 "file": "images/time_format_PM.png",
-                "type": "png",
-                "name": "IMAGE_PM_MODE"
+                "name": "IMAGE_PM_MODE",
+                "type": "png"
             },
             {
                 "file": "images/day_sun.png",
-                "type": "png",
-                "name": "IMAGE_DAY_NAME_SUN"
+                "name": "IMAGE_DAY_NAME_SUN",
+                "type": "png"
             },
             {
                 "file": "images/day_mon.png",
-                "type": "png",
-                "name": "IMAGE_DAY_NAME_MON"
+                "name": "IMAGE_DAY_NAME_MON",
+                "type": "png"
             },
             {
                 "file": "images/day_tue.png",
-                "type": "png",
-                "name": "IMAGE_DAY_NAME_TUE"
+                "name": "IMAGE_DAY_NAME_TUE",
+                "type": "png"
             },
             {
                 "file": "images/day_wed.png",
-                "type": "png",
-                "name": "IMAGE_DAY_NAME_WED"
+                "name": "IMAGE_DAY_NAME_WED",
+                "type": "png"
             },
             {
                 "file": "images/day_thu.png",
-                "type": "png",
-                "name": "IMAGE_DAY_NAME_THU"
+                "name": "IMAGE_DAY_NAME_THU",
+                "type": "png"
             },
             {
                 "file": "images/day_fri.png",
-                "type": "png",
-                "name": "IMAGE_DAY_NAME_FRI"
+                "name": "IMAGE_DAY_NAME_FRI",
+                "type": "png"
             },
             {
                 "file": "images/day_sat.png",
-                "type": "png",
-                "name": "IMAGE_DAY_NAME_SAT"
+                "name": "IMAGE_DAY_NAME_SAT",
+                "type": "png"
             },
             {
                 "file": "images/datenum_0.png",
-                "type": "png",
-                "name": "IMAGE_DATENUM_0"
+                "name": "IMAGE_DATENUM_0",
+                "type": "png"
             },
             {
                 "file": "images/datenum_1.png",
-                "type": "png",
-                "name": "IMAGE_DATENUM_1"
+                "name": "IMAGE_DATENUM_1",
+                "type": "png"
             },
             {
                 "file": "images/datenum_2.png",
-                "type": "png",
-                "name": "IMAGE_DATENUM_2"
+                "name": "IMAGE_DATENUM_2",
+                "type": "png"
             },
             {
                 "file": "images/datenum_3.png",
-                "type": "png",
-                "name": "IMAGE_DATENUM_3"
+                "name": "IMAGE_DATENUM_3",
+                "type": "png"
             },
             {
                 "file": "images/datenum_4.png",
-                "type": "png",
-                "name": "IMAGE_DATENUM_4"
+                "name": "IMAGE_DATENUM_4",
+                "type": "png"
             },
             {
                 "file": "images/datenum_5.png",
-                "type": "png",
-                "name": "IMAGE_DATENUM_5"
+                "name": "IMAGE_DATENUM_5",
+                "type": "png"
             },
             {
                 "file": "images/datenum_6.png",
-                "type": "png",
-                "name": "IMAGE_DATENUM_6"
+                "name": "IMAGE_DATENUM_6",
+                "type": "png"
             },
             {
                 "file": "images/datenum_7.png",
-                "type": "png",
-                "name": "IMAGE_DATENUM_7"
+                "name": "IMAGE_DATENUM_7",
+                "type": "png"
             },
             {
                 "file": "images/datenum_8.png",
-                "type": "png",
-                "name": "IMAGE_DATENUM_8"
+                "name": "IMAGE_DATENUM_8",
+                "type": "png"
             },
             {
                 "file": "images/datenum_9.png",
-                "type": "png",
-                "name": "IMAGE_DATENUM_9"
+                "name": "IMAGE_DATENUM_9",
+                "type": "png"
             },
             {
                 "file": "images/num_0.png",
-                "type": "png",
-                "name": "IMAGE_NUM_0"
+                "name": "IMAGE_NUM_0",
+                "type": "png"
             },
             {
                 "file": "images/num_1.png",
-                "type": "png",
-                "name": "IMAGE_NUM_1"
+                "name": "IMAGE_NUM_1",
+                "type": "png"
             },
             {
                 "file": "images/num_2.png",
-                "type": "png",
-                "name": "IMAGE_NUM_2"
+                "name": "IMAGE_NUM_2",
+                "type": "png"
             },
             {
                 "file": "images/num_3.png",
-                "type": "png",
-                "name": "IMAGE_NUM_3"
+                "name": "IMAGE_NUM_3",
+                "type": "png"
             },
             {
                 "file": "images/num_4.png",
-                "type": "png",
-                "name": "IMAGE_NUM_4"
+                "name": "IMAGE_NUM_4",
+                "type": "png"
             },
             {
                 "file": "images/num_5.png",
-                "type": "png",
-                "name": "IMAGE_NUM_5"
+                "name": "IMAGE_NUM_5",
+                "type": "png"
             },
             {
                 "file": "images/num_6.png",
-                "type": "png",
-                "name": "IMAGE_NUM_6"
+                "name": "IMAGE_NUM_6",
+                "type": "png"
             },
             {
                 "file": "images/num_7.png",
-                "type": "png",
-                "name": "IMAGE_NUM_7"
+                "name": "IMAGE_NUM_7",
+                "type": "png"
             },
             {
                 "file": "images/num_8.png",
-                "type": "png",
-                "name": "IMAGE_NUM_8"
+                "name": "IMAGE_NUM_8",
+                "type": "png"
             },
             {
                 "file": "images/num_9.png",
-                "type": "png",
-                "name": "IMAGE_NUM_9"
+                "name": "IMAGE_NUM_9",
+                "type": "png"
             },
             {
                 "file": "images/icon_battery_charge.png",
-                "type": "png",
-                "name": "IMAGE_BATTERY_CHARGE"
+                "name": "IMAGE_BATTERY_CHARGE",
+                "type": "png"
             },
             {
                 "file": "images/icon_battery.png",
-                "type": "png",
-                "name": "IMAGE_BATTERY"
+                "name": "IMAGE_BATTERY",
+                "type": "png"
             },
             {
                 "file": "images/icon_mail.png",
-                "type": "png",
-                "name": "IMAGE_EMAIL"
+                "name": "IMAGE_EMAIL",
+                "type": "png"
             },
             {
                 "file": "images/tiny_0.png",
-                "type": "png",
-                "name": "IMAGE_TINY_0"
+                "name": "IMAGE_TINY_0",
+                "type": "png"
             },
             {
                 "file": "images/tiny_1.png",
-                "type": "png",
-                "name": "IMAGE_TINY_1"
+                "name": "IMAGE_TINY_1",
+                "type": "png"
             },
             {
                 "file": "images/tiny_2.png",
-                "type": "png",
-                "name": "IMAGE_TINY_2"
+                "name": "IMAGE_TINY_2",
+                "type": "png"
             },
             {
                 "file": "images/tiny_3.png",
-                "type": "png",
-                "name": "IMAGE_TINY_3"
+                "name": "IMAGE_TINY_3",
+                "type": "png"
             },
             {
                 "file": "images/tiny_4.png",
-                "type": "png",
-                "name": "IMAGE_TINY_4"
+                "name": "IMAGE_TINY_4",
+                "type": "png"
             },
             {
                 "file": "images/tiny_5.png",
-                "type": "png",
-                "name": "IMAGE_TINY_5"
+                "name": "IMAGE_TINY_5",
+                "type": "png"
             },
             {
                 "file": "images/tiny_6.png",
-                "type": "png",
-                "name": "IMAGE_TINY_6"
+                "name": "IMAGE_TINY_6",
+                "type": "png"
             },
             {
                 "file": "images/tiny_7.png",
-                "type": "png",
-                "name": "IMAGE_TINY_7"
+                "name": "IMAGE_TINY_7",
+                "type": "png"
             },
             {
                 "file": "images/tiny_8.png",
-                "type": "png",
-                "name": "IMAGE_TINY_8"
+                "name": "IMAGE_TINY_8",
+                "type": "png"
             },
             {
                 "file": "images/tiny_9.png",
-                "type": "png",
-                "name": "IMAGE_TINY_9"
+                "name": "IMAGE_TINY_9",
+                "type": "png"
             },
             {
                 "file": "images/tiny_percent.png",
-                "type": "png",
-                "name": "IMAGE_TINY_PERCENT"
+                "name": "IMAGE_TINY_PERCENT",
+                "type": "png"
             }
         ]
     },
+    "shortName": "91 Dub v2.0",
+    "uuid": "0c3ca0ae-9067-4764-af92-bdcad1fb6084",
     "versionCode": 10,
-    "companyName": "Orviwan",
-    "uuid": "0c3ca0ae-9067-4764-af92-bdcad1fb6084"
+    "versionLabel": "1.1",
+    "watchapp": {
+        "watchface": true
+    }
 }
