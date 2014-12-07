@@ -6,7 +6,7 @@ static Layer *window_layer;
 static uint8_t batteryPercent;
 
 static AppSync sync;
-static uint8_t sync_buffer[64];
+static uint8_t sync_buffer[128];
 
 #define SETTINGS_KEY 99
 
@@ -16,6 +16,7 @@ typedef struct persist {
     int BluetoothVibe;
     int HourlyVibe;
     int BrandingMask;
+    int BatteryHide;
 } __attribute__((__packed__)) persist;
 
 persist settings = {
@@ -23,7 +24,8 @@ persist settings = {
 	.Invert = 0,
 	.BluetoothVibe = 1,
 	.HourlyVibe = 0,
-	.BrandingMask = 0
+	.BrandingMask = 0,
+	.BatteryHide = 0
 };
 
 static int valueRead, valueWritten;
@@ -35,7 +37,8 @@ enum {
   INVERT_KEY = 0x1,
   BLUETOOTHVIBE_KEY = 0x2,
   HOURLYVIBE_KEY = 0x3,
-  BRANDING_MASK_KEY = 0x4
+  BRANDING_MASK_KEY = 0x4,
+  BATTERY_HIDE_KEY = 0x5
 };
 
 static GBitmap *branding_mask_image;
@@ -144,6 +147,9 @@ void change_background() {
 }
 
 void change_battery_icon(bool charging) {
+	if(settings.BatteryHide) {
+		return;
+	}
   gbitmap_destroy(battery_image);
   if(charging) {
     battery_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BATTERY_CHARGE);
@@ -183,6 +189,14 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
       settings.BrandingMask = new_tuple->value->uint8;
       layer_set_hidden(bitmap_layer_get_layer(branding_mask_layer), !settings.BrandingMask);
       break;
+    case BATTERY_HIDE_KEY:
+      settings.BatteryHide = new_tuple->value->uint8;
+      layer_set_hidden(bitmap_layer_get_layer(battery_layer), settings.BatteryHide);
+		  layer_set_hidden(bitmap_layer_get_layer(battery_image_layer), settings.BatteryHide);
+		
+			//APP_LOG(APP_LOG_LEVEL_DEBUG, "Battery Hide: %u", settings.BatteryHide);
+		
+      break;
   }
 }
 
@@ -202,6 +216,10 @@ static void set_container_image(GBitmap **bmp_image, BitmapLayer *bmp_layer, con
 }
 
 static void update_battery(BatteryChargeState charge_state) {
+	
+	if(settings.BatteryHide) {
+		return;
+	}
 
   batteryPercent = charge_state.charge_percent;
 
@@ -337,8 +355,8 @@ static void init(void) {
   memset(&battery_percent_layers, 0, sizeof(battery_percent_layers));
   memset(&battery_percent_image, 0, sizeof(battery_percent_image));
 
-  const int inbound_size = 64;
-  const int outbound_size = 64;
+  const int inbound_size = 128;
+  const int outbound_size = 128;
   app_message_open(inbound_size, outbound_size);  
 
   window = window_create();
@@ -445,7 +463,8 @@ static void init(void) {
     TupletInteger(INVERT_KEY, settings.Invert),
     TupletInteger(BLUETOOTHVIBE_KEY, settings.BluetoothVibe),
     TupletInteger(HOURLYVIBE_KEY, settings.HourlyVibe),
-    TupletInteger(BRANDING_MASK_KEY, settings.BrandingMask)
+    TupletInteger(BRANDING_MASK_KEY, settings.BrandingMask),
+    TupletInteger(BATTERY_HIDE_KEY, settings.BatteryHide)
   };
   
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
@@ -523,7 +542,7 @@ static void deinit(void) {
     gbitmap_destroy(date_digits_images[i]);
     date_digits_images[i] = NULL;
     bitmap_layer_destroy(date_digits_layers[i]);
-	date_digits_layers[i] = NULL;
+		date_digits_layers[i] = NULL;
   }
 
   for (int i = 0; i < TOTAL_TIME_DIGITS; i++) {
@@ -531,7 +550,7 @@ static void deinit(void) {
     gbitmap_destroy(time_digits_images[i]);
     time_digits_images[i] = NULL;
     bitmap_layer_destroy(time_digits_layers[i]);
-	time_digits_layers[i] = NULL;
+		time_digits_layers[i] = NULL;
   }
 
   for (int i = 0; i < TOTAL_BATTERY_PERCENT_DIGITS; i++) {
@@ -539,14 +558,14 @@ static void deinit(void) {
     gbitmap_destroy(battery_percent_image[i]);
     battery_percent_image[i] = NULL;
     bitmap_layer_destroy(battery_percent_layers[i]); 
-	battery_percent_layers[i] = NULL;
+		battery_percent_layers[i] = NULL;
   } 
+
+	appStarted = NULL;
 	
   layer_remove_from_parent(window_layer);
   layer_destroy(window_layer);
 	
-  //window_destroy(window);
-
 }
 
 int main(void) {

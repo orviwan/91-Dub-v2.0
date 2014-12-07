@@ -1,5 +1,6 @@
 {
     "appKeys": {
+        "battery_hide": 5,
         "blink": 0,
         "bluetoothvibe": 2,
         "branding_mask": 4,
@@ -275,7 +276,7 @@
     "shortName": "91 Dub v2.0",
     "uuid": "0c3ca0ae-9067-4764-af92-bdcad1fb6084",
     "versionCode": 10,
-    "versionLabel": "2.2",
+    "versionLabel": "2.3",
     "watchapp": {
         "watchface": true
     }
