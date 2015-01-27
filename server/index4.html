@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html manifest="manifest.appcache">
+<head>
+	<title>91 Dub v2.0 Config</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/bootstrap-theme.min.css" rel="stylesheet">
+
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	
+	<script type="text/javascript" src="https://blockchain.info/Resources/wallet/pay-now-button.js"></script>
+
+</head>
+<body>
+    <div class="container">
+
+			<h2>91 Dub v2.0</h2>
+      
+      <form id="configure-form" class="form-configure well" action="#" method="POST">
+        <h4>Blink</h4>
+        <p><small>The colon between the hours and minutes will blink every second.</small></p>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary">
+            <input type="radio" name="blink" id="blink1" value="1"> Yes
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="blink" id="blink2" value="0"> No
+          </label>
+        </div>
+        <hr />
+        <h4>Junkie mode</h4>
+        <p><small>Alternate colour scheme, as requested by <a href="http://forums.getpebble.com/profile/295/CaffeineJunkie" target="_blank">@CaffeineJunkie</a>.</small></p>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary">
+            <input type="radio" name="invert" id="invert1" value="1"> Yes
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="invert" id="invert2" value="0"> No
+          </label>
+        </div>
+        <hr />
+        <h4>Bluetooth Vibe</h4>
+        <p><small>Vibrate on Bluetooth disconnect.</small></p>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary">
+            <input type="radio" name="bluetoothvibe" id="bluetoothvibe1" value="1"> Yes
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="bluetoothvibe" id="bluetoothvibe2" value="0"> No
+          </label>
+        </div>
+        <hr />
+        <h4>Hourly Vibe</h4>
+        <p><small>Vibrate on the hour.</small></p>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary">
+            <input type="radio" name="hourlyvibe" id="hourlyvibe1" value="1"> Yes
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="hourlyvibe" id="hourlyvibe2" value="0"> No
+          </label>
+        </div>
+        <hr />
+        <h4>Hide Branding</h4>
+        <p><small>Don't display 'Pebble Smartwatch' at the top of the watch face.</small></p>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary">
+            <input type="radio" name="branding_mask" id="branding_mask1" value="1"> Yes
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="branding_mask" id="branding_mask2" value="0"> No
+          </label>
+        </div>
+        <hr />
+        <h4>Hide Battery Level</h4>
+        <p><small>Don't display the battery icon and percentage on the watch face.</small></p>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary">
+            <input type="radio" name="battery_hide" id="battery_hide1" value="1"> Yes
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="battery_hide" id="battery_hide2" value="0"> No
+          </label>
+        </div>
+        <hr />
+        <h4>Show Seconds</h4>
+        <p><small>Reduce the size of the clock to display seconds.</small></p>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary">
+            <input type="radio" name="seconds" id="seconds1" value="1"> Yes
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="seconds" id="seconds2" value="0"> No
+          </label>
+        </div>
+        <hr />		
+        <div class="clearfix">
+          <input class="btn btn-lg btn-primary btn-block" id="save" type="submit" value="Save"/>
+        </div>
+      </form>
+	  </div>
+
+    <div class="footer container">
+    	<p>91 Dub v2.0 by <a href="http://twitter.com/orviwan">orviwan</a></p>
+		
+		
+		<div style="font-size:16px;margin:0 auto;width:300px" class="blockchain-btn"
+			 data-address="1LWe3CNaTzb6LEdzb9brbrPuTAzDw6fhNA"
+			 data-shared="false">
+			<div class="blockchain stage-begin">
+				<img src="https://blockchain.info//Resources/buttons/donate_64.png"/>
+			</div>
+			<div class="blockchain stage-loading" style="text-align:center">
+				<img src="https://blockchain.info//Resources/loading-large.gif"/>
+			</div>
+			<div class="blockchain stage-ready">
+				 <p align="center">Any donations are greatly received: <b>[[address]]</b></p>
+				 <p align="center" class="qr-code"></p>
+			</div>
+			<div class="blockchain stage-paid">
+				 Donation of <b>[[value]] BTC</b> Received. Thank You.
+			</div>
+			<div class="blockchain stage-error">
+				<font color="red">[[error]]</font>
+			</div>
+		</div>
+				
+		<br />
+    </div>
+    
+    <script>
+          
+      // Something like this to get query variables.
+      function getQueryParam(variable, default_) {
+          var query = location.search.substring(1);
+          var vars = query.split('&');
+          for (var i = 0; i < vars.length; i++) {
+              var pair = vars[i].split('=');
+              if (pair[0] == variable)
+                  return decodeURIComponent(pair[1]);
+          }
+          return default_ || false;
+      }    
+      var mBlink;
+      var mInvert;
+      var mBluetoothvibe;
+      var mHourlyvibe;
+	  var mBrandingMask;
+	  var mBatteryHide;
+	  var mSeconds;
+      
+      $().ready(function () {
+
+        mBlink = parseInt(localStorage.getItem("blink"));      
+        mInvert = parseInt(localStorage.getItem("invert"));
+        mBluetoothvibe = parseInt(localStorage.getItem("bluetoothvibe"));
+        mHourlyvibe = parseInt(localStorage.getItem("hourlyvibe"));
+        mBrandingMask = parseInt(localStorage.getItem("branding_mask"));
+        mBatteryHide = parseInt(localStorage.getItem("battery_hide"));
+        mSeconds = parseInt(localStorage.getItem("seconds"));
+		
+
+        if(isNaN(mBlink)) {
+          mBlink = 1;
+        }
+        if(isNaN(mInvert)) {
+          mInvert = 0;
+        }
+        if(isNaN(mBluetoothvibe)) {
+          mBluetoothvibe = 0;
+        }
+        if(isNaN(mHourlyvibe)) {
+          mHourlyvibe = 0;
+        } 
+        if(isNaN(mBrandingMask)) {
+          mBrandingMask = 0;
+        }          
+		if(isNaN(mBatteryHide)) {
+          mBatteryHide = 0;
+        }   		
+		if(isNaN(mSeconds)) {
+          mSeconds = 0;
+        }        
+        
+        
+        if(mBlink) {
+          $('#blink1').prop('checked', true);
+          $('#blink1').parent().addClass('active');
+          
+          $('#blink2').prop('checked', false);
+          $('#blink2').parent().removeClass('active');
+        } 
+        else {
+          $('#blink1').prop('checked', false);
+          $('#blink1').parent().removeClass('active');
+          
+          $('#blink2').prop('checked', true);
+          $('#blink2').parent().addClass('active'); 
+        }
+        
+        if(mInvert) {
+          $('#invert1').prop('checked', true);
+          $('#invert1').parent().addClass('active');
+          
+          $('#invert2').prop('checked', false);
+          $('#invert2').parent().removeClass('active');
+        } 
+        else {
+          $('#invert1').prop('checked', false);
+          $('#invert1').parent().removeClass('active');
+          
+          $('#invert2').prop('checked', true);
+          $('#invert2').parent().addClass('active'); 
+        }
+        
+        
+        if(mBluetoothvibe) {
+          $('#bluetoothvibe1').prop('checked', true);
+          $('#bluetoothvibe1').parent().addClass('active');
+          
+          $('#bluetoothvibe2').prop('checked', false);
+          $('#bluetoothvibe2').parent().removeClass('active');
+        } 
+        else {
+          $('#bluetoothvibe1').prop('checked', false);
+          $('#bluetoothvibe1').parent().removeClass('active');
+          
+          $('#bluetoothvibe2').prop('checked', true);
+          $('#bluetoothvibe2').parent().addClass('active'); 
+        }
+        
+        
+        if(mHourlyvibe) {
+          $('#hourlyvibe1').prop('checked', true);
+          $('#hourlyvibe1').parent().addClass('active');
+          
+          $('#hourlyvibe2').prop('checked', false);
+          $('#hourlyvibe2').parent().removeClass('active');
+        } 
+        else {
+          $('#hourlyvibe1').prop('checked', false);
+          $('#hourlyvibe1').parent().removeClass('active');
+          
+          $('#hourlyvibe2').prop('checked', true);
+          $('#hourlyvibe2').parent().addClass('active'); 
+        }
+		
+        if(mBrandingMask) {
+          $('#branding_mask1').prop('checked', true);
+          $('#branding_mask1').parent().addClass('active');
+          
+          $('#branding_mask2').prop('checked', false);
+          $('#branding_mask2').parent().removeClass('active');
+        } 
+        else {
+          $('#branding_mask1').prop('checked', false);
+          $('#branding_mask1').parent().removeClass('active');
+          
+          $('#branding_mask2').prop('checked', true);
+          $('#branding_mask2').parent().addClass('active'); 
+        }	
+		
+        if(mBatteryHide) {
+          $('#battery_hide1').prop('checked', true);
+          $('#battery_hide1').parent().addClass('active');
+          
+          $('#battery_hide2').prop('checked', false);
+          $('#battery_hide2').parent().removeClass('active');
+        } 
+        else {
+          $('#battery_hide1').prop('checked', false);
+          $('#battery_hide1').parent().removeClass('active');
+          
+          $('#battery_hide2').prop('checked', true);
+          $('#battery_hide2').parent().addClass('active'); 
+        }	
+		
+        if(mSeconds) {
+          $('#seconds1').prop('checked', true);
+          $('#seconds1').parent().addClass('active');
+          
+          $('#seconds2').prop('checked', false);
+          $('#seconds2').parent().removeClass('active');
+        } 
+        else {
+          $('#seconds1').prop('checked', false);
+          $('#seconds1').parent().removeClass('active');
+          
+          $('#seconds2').prop('checked', true);
+          $('#seconds2').parent().addClass('active'); 
+        }
+
+      });
+
+      $("#configure-form").submit(function(e) {  
+
+        mBlink = $('#blink1').prop('checked') ? 1 : 0;
+        mInvert = $('#invert1').prop('checked') ? 1 : 0;
+        mBluetoothvibe = $('#bluetoothvibe1').prop('checked') ? 1 : 0;
+        mHourlyvibe = $('#hourlyvibe1').prop('checked') ? 1 : 0;
+        mBrandingMask = $('#branding_mask1').prop('checked') ? 1 : 0;
+        mBatteryHide = $('#battery_hide1').prop('checked') ? 1 : 0;
+        mSeconds = $('#seconds1').prop('checked') ? 1 : 0;
+
+        localStorage.setItem("blink", mBlink);  
+        localStorage.setItem("invert", mInvert); 
+        localStorage.setItem("bluetoothvibe", mBluetoothvibe); 
+        localStorage.setItem("hourlyvibe", mHourlyvibe); 
+        localStorage.setItem("branding_mask", mBrandingMask); 
+        localStorage.setItem("battery_hide", mBatteryHide); 
+        localStorage.setItem("seconds", mSeconds); 
+        
+        var j = {
+          blink : parseInt(mBlink),
+          invert : parseInt(mInvert),
+          bluetoothvibe : parseInt(mBluetoothvibe),
+          hourlyvibe: parseInt(mHourlyvibe),
+          branding_mask: parseInt(mBrandingMask),
+          battery_hide: parseInt(mBatteryHide),
+          seconds: parseInt(mSeconds)
+        };
+        
+        var return_to = getQueryParam('return_to', 'pebblejs://close#');
+        document.location = return_to + JSON.stringify(j);
+
+        //window.location.href = "pebblejs://close#" + JSON.stringify(j);
+
+        e.preventDefault();
+      });
+  </script>
+</body>
+</html>
