@@ -245,14 +245,26 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
       break;
 		case SECONDS_KEY:
 			settings.Seconds = new_tuple->value->uint8;
-				if(settings.Seconds) {
-					layer_set_hidden(big_time_layer, true);
-					layer_set_hidden(med_time_layer, false);
-				}
-				else {
-					layer_set_hidden(big_time_layer, false);
-					layer_set_hidden(med_time_layer, true);		
-		    }
+      tick_timer_service_unsubscribe();
+      if(settings.Blink || settings.Seconds) {
+        tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
+      }
+      else {
+        tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
+      }
+			if(settings.Seconds) {
+				layer_set_hidden(big_time_layer, true);
+				layer_set_hidden(med_time_layer, false);
+			}
+			else {
+				layer_set_hidden(big_time_layer, false);
+				layer_set_hidden(med_time_layer, true);		
+			}
+			appStarted = false;
+			time_t now = time(NULL);
+			struct tm *tick_time = localtime(&now);  
+			handle_tick(tick_time, HOUR_UNIT + MINUTE_UNIT + SECOND_UNIT);
+			appStarted = true;
   }
 }
 
@@ -344,12 +356,14 @@ static void update_hours(struct tm *tick_time) {
   
   unsigned short display_hour = get_display_hour(tick_time->tm_hour);
 
-  /////////////////////////////////////
-  set_container_image(&time_digits_images[0], time_digits_layers[0], BIG_DIGIT_IMAGE_RESOURCE_IDS[display_hour/10], GPoint(10, 84));
-  set_container_image(&time_digits_images[1], time_digits_layers[1], BIG_DIGIT_IMAGE_RESOURCE_IDS[display_hour%10], GPoint(40, 84));
-
-  set_container_image(&time_med_digits_images[0], time_med_digits_layers[0], MED_DIGIT_IMAGE_RESOURCE_IDS[display_hour/10], GPoint(12, 88));
-  set_container_image(&time_med_digits_images[1], time_med_digits_layers[1], MED_DIGIT_IMAGE_RESOURCE_IDS[display_hour%10], GPoint(35, 88));  
+	if(settings.Seconds) {
+		set_container_image(&time_med_digits_images[0], time_med_digits_layers[0], MED_DIGIT_IMAGE_RESOURCE_IDS[display_hour/10], GPoint(12, 88));
+		set_container_image(&time_med_digits_images[1], time_med_digits_layers[1], MED_DIGIT_IMAGE_RESOURCE_IDS[display_hour%10], GPoint(35, 88));  
+	}
+	else {
+		set_container_image(&time_digits_images[0], time_digits_layers[0], BIG_DIGIT_IMAGE_RESOURCE_IDS[display_hour/10], GPoint(10, 84));
+		set_container_image(&time_digits_images[1], time_digits_layers[1], BIG_DIGIT_IMAGE_RESOURCE_IDS[display_hour%10], GPoint(40, 84));
+	}
 
   if (!clock_is_24h_style()) {
     if (tick_time->tm_hour >= 12) {
@@ -359,42 +373,59 @@ static void update_hours(struct tm *tick_time) {
     else {
       layer_set_hidden(bitmap_layer_get_layer(time_format_layer), true);
     }
-    /////////////////////////////////////
     if (display_hour/10 == 0) {
-      layer_set_hidden(bitmap_layer_get_layer(time_digits_layers[0]), true);
-      layer_set_hidden(bitmap_layer_get_layer(time_med_digits_layers[0]), true);
+			if(settings.Seconds) {
+				layer_set_hidden(bitmap_layer_get_layer(time_med_digits_layers[0]), true);
+			}
+			else {
+				layer_set_hidden(bitmap_layer_get_layer(time_digits_layers[0]), true);
+			}
     }
     else {
-      layer_set_hidden(bitmap_layer_get_layer(time_digits_layers[0]), false);
-      layer_set_hidden(bitmap_layer_get_layer(time_med_digits_layers[0]), false);
+			if(settings.Seconds) {
+				layer_set_hidden(bitmap_layer_get_layer(time_med_digits_layers[0]), false);
+			}
+			else {
+				layer_set_hidden(bitmap_layer_get_layer(time_digits_layers[0]), false);
+			}
     }
 
   }
 }
 static void update_minutes(struct tm *tick_time) {
+	if(settings.Seconds) {
+		set_container_image(&time_med_digits_images[2], time_med_digits_layers[2], MED_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_min/10], GPoint(65, 88));
+		set_container_image(&time_med_digits_images[3], time_med_digits_layers[3], MED_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_min%10], GPoint(87, 88));
+	}
+	else {
+		set_container_image(&time_digits_images[2], time_digits_layers[2], BIG_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_min/10], GPoint(77, 84));
+		set_container_image(&time_digits_images[3], time_digits_layers[3], BIG_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_min%10], GPoint(105, 84));
+	}
 
-  /////////////////////////////////////
-  set_container_image(&time_digits_images[2], time_digits_layers[2], BIG_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_min/10], GPoint(77, 84));
-  set_container_image(&time_digits_images[3], time_digits_layers[3], BIG_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_min%10], GPoint(105, 84));
-
-  set_container_image(&time_med_digits_images[2], time_med_digits_layers[2], MED_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_min/10], GPoint(65, 88));
-  set_container_image(&time_med_digits_images[3], time_med_digits_layers[3], MED_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_min%10], GPoint(87, 88));
 }
 static void update_seconds(struct tm *tick_time) {
   if(settings.Blink) {
-    layer_set_hidden(bitmap_layer_get_layer(separator_layer), tick_time->tm_sec%2);
-    layer_set_hidden(bitmap_layer_get_layer(separator_med_layer), tick_time->tm_sec%2);
+		if(settings.Seconds) {
+			layer_set_hidden(bitmap_layer_get_layer(separator_med_layer), tick_time->tm_sec%2);
+		}
+		else {
+			layer_set_hidden(bitmap_layer_get_layer(separator_layer), tick_time->tm_sec%2);
+		}
   }
   else {
     if(layer_get_hidden(bitmap_layer_get_layer(separator_layer))) {
-      layer_set_hidden(bitmap_layer_get_layer(separator_layer), false);
-      layer_set_hidden(bitmap_layer_get_layer(separator_med_layer), false);
+			if(settings.Seconds) {
+				layer_set_hidden(bitmap_layer_get_layer(separator_med_layer), false);
+			}
+			else {
+				layer_set_hidden(bitmap_layer_get_layer(separator_layer), false);
+			}	
     }
   }
-////////////////////////////////
-  set_container_image(&time_sm_digits_images[0], time_sm_digits_layers[0], SM_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_sec/10], GPoint(109, 104));
-  set_container_image(&time_sm_digits_images[1], time_sm_digits_layers[1], SM_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_sec%10], GPoint(121, 104));
-
+	if(settings.Seconds) {
+		set_container_image(&time_sm_digits_images[0], time_sm_digits_layers[0], SM_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_sec/10], GPoint(109, 104));
+		set_container_image(&time_sm_digits_images[1], time_sm_digits_layers[1], SM_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_sec%10], GPoint(121, 104));
+	}
 }
 
 static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
@@ -582,7 +613,13 @@ static void init(void) {
 
   appStarted = true;
 
-  tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
+	if(settings.Seconds) {
+		tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
+	}
+	else {
+  	tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
+	}
+
   bluetooth_connection_service_subscribe(bluetooth_connection_callback);
   battery_state_service_subscribe(&update_battery);
 
