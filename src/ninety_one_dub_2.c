@@ -30,6 +30,16 @@ persist settings = {
 	.Seconds = 0
 };
 
+static const PropertyAnimationImplementation layer_hidden_implementation = {
+  .base = {
+    .update = (AnimationUpdateImplementation) property_animation_update_int16,
+  },
+  .accessors = {
+    .setter = { .int16 = (Int16Setter) layer_set_hidden, },
+    .getter = { .int16 = (Int16Getter) layer_get_hidden, },
+  },
+};
+
 static int valueRead, valueWritten;
 
 static bool appStarted = false;
@@ -44,6 +54,12 @@ enum {
 	SECONDS_KEY = 0x6
 };
 
+enum {
+  BLINK_OFF = 0,
+  BLINK_ON = 1,
+  BLINK_DOUBLE_RATE = 2,
+};
+
 static GBitmap *branding_mask_image;
 static BitmapLayer *branding_mask_layer;
 
@@ -52,9 +68,11 @@ static BitmapLayer *background_layer;
 
 static GBitmap *separator_image;
 static BitmapLayer *separator_layer;
+static PropertyAnimation *separator_animation;
 
 static GBitmap *separator_med_image;
 static BitmapLayer *separator_med_layer;
+static PropertyAnimation *separator_med_animation;
 
 static GBitmap *meter_bar_image;
 static BitmapLayer *meter_bar_layer;
@@ -404,23 +422,34 @@ static void update_minutes(struct tm *tick_time) {
 
 }
 static void update_seconds(struct tm *tick_time) {
-  if(settings.Blink) {
+
+  if(settings.Blink == BLINK_ON) {
+    animation_unschedule_all();
+               if(settings.Seconds) {
+                       layer_set_hidden(bitmap_layer_get_layer(separator_med_layer), tick_time->tm_sec%2);
+               }
+               else {
+                       layer_set_hidden(bitmap_layer_get_layer(separator_layer), tick_time->tm_sec%2);
+               }
+  }
+  else if(settings.Blink == BLINK_DOUBLE_RATE) {
 		if(settings.Seconds) {
-			layer_set_hidden(bitmap_layer_get_layer(separator_med_layer), tick_time->tm_sec%2);
+			layer_set_hidden(bitmap_layer_get_layer(separator_med_layer), false);
+			animation_schedule((Animation *)separator_med_animation);
 		}
 		else {
-			layer_set_hidden(bitmap_layer_get_layer(separator_layer), tick_time->tm_sec%2);
+			layer_set_hidden(bitmap_layer_get_layer(separator_layer), false);
+			animation_schedule((Animation *)separator_animation);
 		}
   }
-  else {
-    if(layer_get_hidden(bitmap_layer_get_layer(separator_layer))) {
+  else if (settings.Blink == BLINK_OFF) {
+			animation_unschedule_all();
 			if(settings.Seconds) {
 				layer_set_hidden(bitmap_layer_get_layer(separator_med_layer), false);
 			}
 			else {
 				layer_set_hidden(bitmap_layer_get_layer(separator_layer), false);
 			}	
-    }
   }
 	if(settings.Seconds) {
 		set_container_image(&time_sm_digits_images[0], time_sm_digits_layers[0], SM_DIGIT_IMAGE_RESOURCE_IDS[tick_time->tm_sec/10], GPoint(109, 104));
@@ -606,6 +635,19 @@ static void init(void) {
       sync_tuple_changed_callback, NULL, NULL);
    
   
+
+  bool _true = true;
+  bool _false = false;
+  separator_animation = property_animation_create(&layer_hidden_implementation, bitmap_layer_get_layer(separator_layer), &_false, &_true);
+  animation_set_duration((Animation *) separator_animation, 1);
+  animation_set_delay((Animation *) separator_animation, 500);
+  animation_set_curve((Animation *) separator_animation, AnimationCurveLinear);
+
+  separator_med_animation = property_animation_create(&layer_hidden_implementation, bitmap_layer_get_layer(separator_med_layer), &_false, &_true);
+  animation_set_duration((Animation *) separator_med_animation, 1);
+  animation_set_delay((Animation *) separator_med_animation, 500);
+  animation_set_curve((Animation *) separator_med_animation, AnimationCurveLinear);
+
   // Avoids a blank screen on watch start.
   time_t now = time(NULL);
   struct tm *tick_time = localtime(&now);  
@@ -635,6 +677,14 @@ static void deinit(void) {
   tick_timer_service_unsubscribe();
   bluetooth_connection_service_unsubscribe();
   battery_state_service_unsubscribe();
+
+  animation_unschedule_all();
+
+  property_animation_destroy(separator_med_animation);
+  separator_med_animation = NULL;
+
+  property_animation_destroy(separator_animation);
+  separator_animation = NULL;
 
   layer_remove_from_parent(bitmap_layer_get_layer(background_layer));
   bitmap_layer_destroy(background_layer);

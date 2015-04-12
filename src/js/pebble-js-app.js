@@ -46,7 +46,7 @@ function loadLocalData() {
 	mConfig.battery_hide = parseInt(localStorage.getItem("battery_hide"));
 	mConfig.seconds = parseInt(localStorage.getItem("seconds"));
 	
-	mConfig.configureUrl = "http://www.mirz.com/91dubv2/index4.html";
+	mConfig.configureUrl = "http://www.mirz.com/91dubv2/index5.html";
 	
 	if(isNaN(mConfig.blink)) {
 		mConfig.blink = 1;
