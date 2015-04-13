@@ -379,10 +379,15 @@
             }
         ]
     },
+    "sdkVersion": "3",
     "shortName": "91 Dub v2.0",
+    "targetPlatforms": [
+        "aplite",
+        "basalt"
+    ],
     "uuid": "0c3ca0ae-9067-4764-af92-bdcad1fb6084",
     "versionCode": 10,
-    "versionLabel": "2.5",
+    "versionLabel": "2.6",
     "watchapp": {
         "watchface": true
     }

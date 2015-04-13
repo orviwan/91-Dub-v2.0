@@ -1,5 +1,6 @@
 #include "pebble.h"
-
+#include "gbitmap_colour_manipulator.h"
+	
 static Window *window;
 static Layer *window_layer;
 
@@ -7,6 +8,8 @@ static uint8_t batteryPercent;
 
 static AppSync sync;
 static uint8_t sync_buffer[128];
+
+
 
 #define SETTINGS_KEY 99
 
@@ -183,6 +186,15 @@ void change_background() {
     background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
     branding_mask_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRANDING_MASK);
   }  
+	
+	#ifdef PBL_COLOR
+		replace_gbitmap_color(GColorBlack, GColorYellow   , background_image, background_layer);
+		replace_gbitmap_color(GColorBlack, GColorYellow   , branding_mask_image, branding_mask_layer);
+	
+		replace_gbitmap_color(GColorWhite, GColorDukeBlue   , background_image, background_layer);
+		replace_gbitmap_color(GColorWhite, GColorDukeBlue   , branding_mask_image, branding_mask_layer);
+	#endif
+	
   bitmap_layer_set_bitmap(branding_mask_layer, branding_mask_image);
   layer_mark_dirty(bitmap_layer_get_layer(branding_mask_layer));
   
@@ -201,6 +213,10 @@ void change_battery_icon(bool charging) {
   else {
     battery_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BATTERY);
   }  
+	#ifdef PBL_COLOR
+		replace_gbitmap_color(GColorBlack, GColorYellow, battery_image, battery_image_layer);
+		replace_gbitmap_color(GColorWhite, GColorDukeBlue, battery_image, battery_image_layer);
+	#endif
   bitmap_layer_set_bitmap(battery_image_layer, battery_image);
   layer_mark_dirty(bitmap_layer_get_layer(battery_image_layer));
 }
@@ -268,18 +284,26 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
   }
 }
 
+
 static void set_container_image(GBitmap **bmp_image, BitmapLayer *bmp_layer, const int resource_id, GPoint origin) {
   GBitmap *old_image = *bmp_image;
   *bmp_image = gbitmap_create_with_resource(resource_id);
   GRect frame = (GRect) {
     .origin = origin,
-    .size = (*bmp_image)->bounds.size
+    .size = gbitmap_get_bounds(*bmp_image).size
   };
-  bitmap_layer_set_bitmap(bmp_layer, *bmp_image);
-  layer_set_frame(bitmap_layer_get_layer(bmp_layer), frame);
+	
+	bitmap_layer_set_bitmap(bmp_layer, *bmp_image);
+	layer_set_frame(bitmap_layer_get_layer(bmp_layer), frame);
+
+	#ifdef PBL_COLOR
+		replace_gbitmap_color(GColorBlack, GColorYellow, *bmp_image, bmp_layer);
+		replace_gbitmap_color(GColorWhite, GColorDukeBlue, *bmp_image, bmp_layer);
+	#endif
+		
   if (old_image != NULL) {
-  gbitmap_destroy(old_image);
-  old_image = NULL;
+		gbitmap_destroy(old_image);
+		old_image = NULL;
   }
 }
 
@@ -326,8 +350,8 @@ void bluetooth_connection_callback(bool connected) {
 
 void battery_layer_update_callback(Layer *me, GContext* ctx) {        
   //draw the remaining battery percentage
-  graphics_context_set_stroke_color(ctx, GColorBlack);
-  graphics_context_set_fill_color(ctx, GColorBlack);
+  graphics_context_set_stroke_color(ctx, COLOR_FALLBACK(GColorYellow, GColorBlack));
+  graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorYellow, GColorBlack));
   graphics_fill_rect(ctx, GRect(2, 2, ((batteryPercent/100.0)*11.0), 5), 0, GCornerNone);
 }
 
@@ -482,6 +506,10 @@ static void init(void) {
   background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
   background_layer = bitmap_layer_create(layer_get_frame(window_layer));
   bitmap_layer_set_bitmap(background_layer, background_image);
+	#ifdef PBL_COLOR
+		replace_gbitmap_color(GColorBlack, GColorYellow, background_image, background_layer);
+		replace_gbitmap_color(GColorWhite, GColorDukeBlue, background_image, background_layer);
+	#endif
   layer_add_child(window_layer, bitmap_layer_get_layer(background_layer));
   
   big_time_layer = layer_create(layer_get_frame(window_layer));
@@ -493,18 +521,26 @@ static void init(void) {
   separator_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_SEPARATOR);
   GRect frame = (GRect) {
     .origin = { .x = 69, .y = 91 },
-    .size = separator_image->bounds.size
+    .size = gbitmap_get_bounds(separator_image).size
   };
   separator_layer = bitmap_layer_create(frame);
+	#ifdef PBL_COLOR
+		replace_gbitmap_color(GColorBlack, GColorYellow, separator_image, separator_layer);
+		replace_gbitmap_color(GColorWhite, GColorDukeBlue, separator_image, separator_layer);
+	#endif
   bitmap_layer_set_bitmap(separator_layer, separator_image);
   layer_add_child(big_time_layer, bitmap_layer_get_layer(separator_layer));   
   
   separator_med_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_MED_SEPARATOR);
   GRect frame_med = (GRect) {
     .origin = { .x = 57, .y = 93 },
-    .size = separator_image->bounds.size
+    .size = gbitmap_get_bounds(separator_med_image).size
   };
   separator_med_layer = bitmap_layer_create(frame_med);
+	#ifdef PBL_COLOR
+		replace_gbitmap_color(GColorBlack, GColorYellow, separator_med_image, separator_med_layer);
+		replace_gbitmap_color(GColorWhite, GColorDukeBlue, separator_med_image, separator_med_layer);
+	#endif
   bitmap_layer_set_bitmap(separator_med_layer, separator_med_image);
   layer_add_child(med_time_layer, bitmap_layer_get_layer(separator_med_layer));  
   layer_set_hidden(med_time_layer, true);
@@ -512,28 +548,40 @@ static void init(void) {
   meter_bar_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_METER_BAR);
   GRect frame2 = (GRect) {
     .origin = { .x = 17, .y = 43 },
-    .size = meter_bar_image->bounds.size
+    .size = gbitmap_get_bounds(meter_bar_image).size
   };
   meter_bar_layer = bitmap_layer_create(frame2);
+	#ifdef PBL_COLOR
+		replace_gbitmap_color(GColorBlack, GColorYellow, meter_bar_image, meter_bar_layer);
+		replace_gbitmap_color(GColorWhite, GColorDukeBlue, meter_bar_image, meter_bar_layer);
+	#endif
   bitmap_layer_set_bitmap(meter_bar_layer, meter_bar_image);
   layer_add_child(window_layer, bitmap_layer_get_layer(meter_bar_layer));  
 
   bluetooth_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BLUETOOTH);
   GRect frame3 = (GRect) {
     .origin = { .x = 33, .y = 43 },
-    .size = bluetooth_image->bounds.size
+    .size = gbitmap_get_bounds(bluetooth_image).size
   };
   bluetooth_layer = bitmap_layer_create(frame3);
+	#ifdef PBL_COLOR
+		replace_gbitmap_color(GColorBlack, GColorYellow, bluetooth_image, bluetooth_layer);
+		replace_gbitmap_color(GColorWhite, GColorDukeBlue, bluetooth_image, bluetooth_layer);
+	#endif
   bitmap_layer_set_bitmap(bluetooth_layer, bluetooth_image);
   layer_add_child(window_layer, bitmap_layer_get_layer(bluetooth_layer));
   
   battery_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BATTERY);
   GRect frame4 = (GRect) {
     .origin = { .x = 111, .y = 43 },
-    .size = battery_image->bounds.size
+    .size = gbitmap_get_bounds(battery_image).size
   };
   battery_layer = bitmap_layer_create(frame4);
   battery_image_layer = bitmap_layer_create(frame4);
+	#ifdef PBL_COLOR
+		replace_gbitmap_color(GColorWhite, GColorYellow, battery_image, battery_image_layer);
+		replace_gbitmap_color(GColorBlack, GColorDukeBlue, battery_image, battery_image_layer);
+	#endif
   bitmap_layer_set_bitmap(battery_image_layer, battery_image);
   layer_set_update_proc(bitmap_layer_get_layer(battery_layer), battery_layer_update_callback);
   
@@ -547,6 +595,10 @@ static void init(void) {
   time_format_layer = bitmap_layer_create(frame5);
   if (clock_is_24h_style()) {
     time_format_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_24_HOUR_MODE);
+		#ifdef PBL_COLOR
+			replace_gbitmap_color(GColorBlack, GColorYellow, time_format_image, time_format_layer);
+			replace_gbitmap_color(GColorWhite, GColorDukeBlue, time_format_image, time_format_layer);
+		#endif
     bitmap_layer_set_bitmap(time_format_layer, time_format_image);
     
   }
