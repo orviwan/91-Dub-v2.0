@@ -1,6 +1,6 @@
 #include "pebble.h"
-#include "gbitmap_colour_manipulator.h"
-	
+//#include "gbitmap_colour_manipulator.h"
+
 static Window *window;
 static Layer *window_layer;
 
@@ -20,7 +20,7 @@ typedef struct persist {
     int HourlyVibe;
     int BrandingMask;
     int BatteryHide;
-		int Seconds;
+    int Seconds;
 } __attribute__((__packed__)) persist;
 
 persist settings = {
@@ -30,7 +30,7 @@ persist settings = {
   .HourlyVibe = 0,
   .BrandingMask = 0,
   .BatteryHide = 0,
-	.Seconds = 0
+  .Seconds = 0
 };
 
 static const PropertyAnimationImplementation layer_hidden_implementation = {
@@ -54,7 +54,7 @@ enum {
   HOURLYVIBE_KEY = 0x3,
   BRANDING_MASK_KEY = 0x4,
   BATTERY_HIDE_KEY = 0x5,
-	SECONDS_KEY = 0x6
+  SECONDS_KEY = 0x6
 };
 
 enum {
@@ -192,27 +192,43 @@ const int TINY_IMAGE_RESOURCE_IDS[] = {
   RESOURCE_ID_IMAGE_TINY_9,
   RESOURCE_ID_IMAGE_TINY_PERCENT
 };
+#define palette_num 5
+#ifdef PBL_COLOR
+uint8_t my_palettes[2* palette_num]= {
+    GColorYellowARGB8, GColorDukeBlueARGB8, //user define
+    GColorWhiteARGB8, GColorBlackARGB8,   //black-white
+    GColorBlackARGB8, GColorYellowARGB8, 
+    GColorWhiteARGB8, GColorDukeBlueARGB8,
+    GColorBlackARGB8, GColorCyanARGB8
+};
+#endif
+enum {COLOUR_USER, COLOUR_BW, COLOUR_YELLOW, COLOUR_DukeBlue, COLOUR_CYEN };
+
+GBitmap* gbitmap_create_with_palette(uint8_t palette, uint32_t resource){
+
+  GBitmap*  bitmap = gbitmap_create_with_resource(resource);
+  #ifdef PBL_COLOR
+    GColor * colors= gbitmap_get_palette(bitmap);
+    if (palette<palette_num){
+      colors[0].argb= my_palettes[2* palette];
+      colors[1].argb= my_palettes[2* palette+1];
+    }
+  #endif
+  return bitmap;
+}
 
 void change_background() {
   gbitmap_destroy(background_image);
   gbitmap_destroy(branding_mask_image);
   if(settings.Invert) {
-    background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND_INVERT);
-    branding_mask_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRANDING_MASK_INVERT);
+    background_image = gbitmap_create_with_palette(COLOUR_DukeBlue, RESOURCE_ID_IMAGE_BACKGROUND_INVERT);
+    branding_mask_image = gbitmap_create_with_palette(COLOUR_DukeBlue, RESOURCE_ID_IMAGE_BRANDING_MASK_INVERT);
   }
   else {
-    background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
-    branding_mask_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRANDING_MASK);
+    background_image = gbitmap_create_with_palette(COLOUR_USER, RESOURCE_ID_IMAGE_BACKGROUND);
+    branding_mask_image = gbitmap_create_with_palette(COLOUR_USER, RESOURCE_ID_IMAGE_BRANDING_MASK);
   }  
-	
-	#ifdef PBL_COLOR
-		replace_gbitmap_color(GColorBlack, GColorYellow   , background_image, background_layer);
-		replace_gbitmap_color(GColorBlack, GColorYellow   , branding_mask_image, branding_mask_layer);
-	
-		replace_gbitmap_color(GColorWhite, GColorDukeBlue   , background_image, background_layer);
-		replace_gbitmap_color(GColorWhite, GColorDukeBlue   , branding_mask_image, branding_mask_layer);
-	#endif
-	
+
   bitmap_layer_set_bitmap(branding_mask_layer, branding_mask_image);
   layer_mark_dirty(bitmap_layer_get_layer(branding_mask_layer));
   
@@ -226,15 +242,12 @@ void change_battery_icon(bool charging) {
   }
   gbitmap_destroy(battery_image);
   if(charging) {
-    battery_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BATTERY_CHARGE);
+    battery_image = gbitmap_create_with_palette(COLOUR_USER, RESOURCE_ID_IMAGE_BATTERY_CHARGE);
   }
   else {
-    battery_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BATTERY);
+    battery_image = gbitmap_create_with_palette(COLOUR_USER, RESOURCE_ID_IMAGE_BATTERY);
   }  
-	#ifdef PBL_COLOR
-		replace_gbitmap_color(GColorBlack, GColorYellow, battery_image, battery_image_layer);
-		replace_gbitmap_color(GColorWhite, GColorDukeBlue, battery_image, battery_image_layer);
-	#endif
+
   bitmap_layer_set_bitmap(battery_image_layer, battery_image);
   layer_mark_dirty(bitmap_layer_get_layer(battery_image_layer));
 }
@@ -251,8 +264,8 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
       }
       else {
         tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
-				layer_set_hidden(bitmap_layer_get_layer(separator_layer), false);
-				layer_set_hidden(bitmap_layer_get_layer(separator_med_layer), false);
+        layer_set_hidden(bitmap_layer_get_layer(separator_layer), false);
+        layer_set_hidden(bitmap_layer_get_layer(separator_med_layer), false);
       }
       break;
     case INVERT_KEY:
@@ -305,7 +318,7 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 
 static void set_container_image(GBitmap **bmp_image, BitmapLayer *bmp_layer, const int resource_id, GPoint origin) {
   GBitmap *old_image = *bmp_image;
-  *bmp_image = gbitmap_create_with_resource(resource_id);
+  *bmp_image = gbitmap_create_with_palette(COLOUR_USER, resource_id);
   GRect frame = (GRect) {
     .origin = origin,
     .size = gbitmap_get_bounds(*bmp_image).size
@@ -313,11 +326,6 @@ static void set_container_image(GBitmap **bmp_image, BitmapLayer *bmp_layer, con
 	
 	bitmap_layer_set_bitmap(bmp_layer, *bmp_image);
 	layer_set_frame(bitmap_layer_get_layer(bmp_layer), frame);
-
-	#ifdef PBL_COLOR
-		replace_gbitmap_color(GColorBlack, GColorYellow, *bmp_image, bmp_layer);
-		replace_gbitmap_color(GColorWhite, GColorDukeBlue, *bmp_image, bmp_layer);
-	#endif
 		
   if (old_image != NULL) {
 		gbitmap_destroy(old_image);
@@ -532,13 +540,9 @@ static void init(void) {
   
   loadPersistentSettings();
   
-  background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
+  background_image = gbitmap_create_with_palette(COLOUR_USER, RESOURCE_ID_IMAGE_BACKGROUND);
   background_layer = bitmap_layer_create(layer_get_frame(window_layer));
   bitmap_layer_set_bitmap(background_layer, background_image);
-	#ifdef PBL_COLOR
-		replace_gbitmap_color(GColorBlack, GColorYellow, background_image, background_layer);
-		replace_gbitmap_color(GColorWhite, GColorDukeBlue, background_image, background_layer);
-	#endif
   layer_add_child(window_layer, bitmap_layer_get_layer(background_layer));
   
   big_time_layer = layer_create(layer_get_frame(window_layer));
@@ -547,70 +551,51 @@ static void init(void) {
   med_time_layer = layer_create(layer_get_frame(window_layer));
   layer_add_child(window_layer, med_time_layer);
   
-  separator_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_SEPARATOR);
+  separator_image = gbitmap_create_with_palette(COLOUR_USER, RESOURCE_ID_IMAGE_SEPARATOR);
   GRect frame = (GRect) {
     .origin = { .x = 69, .y = 91 },
     .size = gbitmap_get_bounds(separator_image).size
   };
   separator_layer = bitmap_layer_create(frame);
-	#ifdef PBL_COLOR
-		replace_gbitmap_color(GColorBlack, GColorYellow, separator_image, separator_layer);
-		replace_gbitmap_color(GColorWhite, GColorDukeBlue, separator_image, separator_layer);
-	#endif
+
   bitmap_layer_set_bitmap(separator_layer, separator_image);
   layer_add_child(big_time_layer, bitmap_layer_get_layer(separator_layer));   
   
-  separator_med_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_MED_SEPARATOR);
+  separator_med_image = gbitmap_create_with_palette(COLOUR_USER, RESOURCE_ID_IMAGE_MED_SEPARATOR);
   GRect frame_med = (GRect) {
     .origin = { .x = 57, .y = 93 },
     .size = gbitmap_get_bounds(separator_med_image).size
   };
   separator_med_layer = bitmap_layer_create(frame_med);
-	#ifdef PBL_COLOR
-		replace_gbitmap_color(GColorBlack, GColorYellow, separator_med_image, separator_med_layer);
-		replace_gbitmap_color(GColorWhite, GColorDukeBlue, separator_med_image, separator_med_layer);
-	#endif
   bitmap_layer_set_bitmap(separator_med_layer, separator_med_image);
   layer_add_child(med_time_layer, bitmap_layer_get_layer(separator_med_layer));  
   layer_set_hidden(med_time_layer, true);
 
-  meter_bar_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_METER_BAR);
+  meter_bar_image = gbitmap_create_with_palette(COLOUR_USER, RESOURCE_ID_IMAGE_METER_BAR);
   GRect frame2 = (GRect) {
     .origin = { .x = 17, .y = 43 },
     .size = gbitmap_get_bounds(meter_bar_image).size
   };
   meter_bar_layer = bitmap_layer_create(frame2);
-	#ifdef PBL_COLOR
-		replace_gbitmap_color(GColorBlack, GColorYellow, meter_bar_image, meter_bar_layer);
-		replace_gbitmap_color(GColorWhite, GColorDukeBlue, meter_bar_image, meter_bar_layer);
-	#endif
   bitmap_layer_set_bitmap(meter_bar_layer, meter_bar_image);
   layer_add_child(window_layer, bitmap_layer_get_layer(meter_bar_layer));  
 
-  bluetooth_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BLUETOOTH);
+  bluetooth_image = gbitmap_create_with_palette(COLOUR_USER, RESOURCE_ID_IMAGE_BLUETOOTH);
   GRect frame3 = (GRect) {
     .origin = { .x = 33, .y = 43 },
     .size = gbitmap_get_bounds(bluetooth_image).size
   };
   bluetooth_layer = bitmap_layer_create(frame3);
-	#ifdef PBL_COLOR
-		replace_gbitmap_color(GColorBlack, GColorYellow, bluetooth_image, bluetooth_layer);
-		replace_gbitmap_color(GColorWhite, GColorDukeBlue, bluetooth_image, bluetooth_layer);
-	#endif
   bitmap_layer_set_bitmap(bluetooth_layer, bluetooth_image);
   layer_add_child(window_layer, bitmap_layer_get_layer(bluetooth_layer));
   
-  battery_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BATTERY);
+  battery_image = gbitmap_create_with_palette(COLOUR_USER, RESOURCE_ID_IMAGE_BATTERY);
   GRect frame4 = (GRect) {
     .origin = { .x = 111, .y = 43 },
     .size = gbitmap_get_bounds(battery_image).size
   };
   battery_layer = bitmap_layer_create(frame4);
   battery_image_layer = bitmap_layer_create(frame4);
-	#ifdef PBL_COLOR
-		replace_gbitmap_color(GColorWhite, GColorYellow, battery_image, battery_image_layer);
-		replace_gbitmap_color(GColorBlack, GColorDukeBlue, battery_image, battery_image_layer);
-	#endif
   bitmap_layer_set_bitmap(battery_image_layer, battery_image);
   layer_set_update_proc(bitmap_layer_get_layer(battery_layer), battery_layer_update_callback);
   
@@ -623,11 +608,7 @@ static void init(void) {
   };
   time_format_layer = bitmap_layer_create(frame5);
   if (clock_is_24h_style()) {
-    time_format_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_24_HOUR_MODE);
-		#ifdef PBL_COLOR
-			replace_gbitmap_color(GColorBlack, GColorYellow, time_format_image, time_format_layer);
-			replace_gbitmap_color(GColorWhite, GColorDukeBlue, time_format_image, time_format_layer);
-		#endif
+    time_format_image = gbitmap_create_with_palette(COLOUR_USER, RESOURCE_ID_IMAGE_24_HOUR_MODE);
     bitmap_layer_set_bitmap(time_format_layer, time_format_image);
     
   }
@@ -666,7 +647,7 @@ static void init(void) {
   };
   branding_mask_layer = bitmap_layer_create(framemask);
   layer_add_child(window_layer, bitmap_layer_get_layer(branding_mask_layer));
-  branding_mask_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRANDING_MASK);
+  branding_mask_image = gbitmap_create_with_palette(COLOUR_USER, RESOURCE_ID_IMAGE_BRANDING_MASK);
   bitmap_layer_set_bitmap(branding_mask_layer, branding_mask_image);
   layer_set_hidden(bitmap_layer_get_layer(branding_mask_layer), !settings.BrandingMask);
   
@@ -680,7 +661,7 @@ static void init(void) {
     TupletInteger(HOURLYVIBE_KEY, settings.HourlyVibe),
     TupletInteger(BRANDING_MASK_KEY, settings.BrandingMask),
     TupletInteger(BATTERY_HIDE_KEY, settings.BatteryHide),
-		TupletInteger(SECONDS_KEY, settings.Seconds)
+    TupletInteger(SECONDS_KEY, settings.Seconds)
   };
   
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
