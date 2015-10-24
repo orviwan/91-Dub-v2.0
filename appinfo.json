@@ -385,9 +385,8 @@
         "aplite",
         "basalt"
     ],
-    "uuid": "0c3ca0ae-9067-4764-af92-bdcad1fb6084",
-    "versionCode": 10,
-    "versionLabel": "2.6",
+    "uuid": "11d14064-e9e1-41e6-aff0-9eee2171837d",
+    "versionLabel": "2.9",
     "watchapp": {
         "watchface": true
     }
