@@ -383,7 +383,8 @@
     "shortName": "91 Dub v2.0",
     "targetPlatforms": [
         "aplite",
-        "basalt"
+        "basalt",
+        "chalk"
     ],
     "uuid": "11d14064-e9e1-41e6-aff0-9eee2171837d",
     "versionLabel": "2.9",
